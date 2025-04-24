@@ -2,6 +2,6 @@ name: wp-installer
 project_files:
   - .ddev/commands/web/wp-install
 post_install_actions:
-  - exec-host: "chmod +x .ddev/commands/web/wp-install"
-  - exec: 'echo "✅ Installed ''wp-install''. Run ''ddev wp-install'' to install WordPress."'
+  - chmod +x .ddev/commands/web/wp-install
+  - echo "✅ Installed 'wp-install'. Run 'ddev wp-install' to install WordPress."
 # ddev_version_constraint: ">= v1.23.0"
