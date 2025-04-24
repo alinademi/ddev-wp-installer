@@ -4,13 +4,26 @@
 ## Usage: wp-install
 ## Example: ddev wp-install
 
+# Exit on error
+set -e
+
+# Ensure WordPress core exists
+if ! [ -f wp-load.php ]; then
+  echo "📦 Downloading WordPress core..."
+  wp core download
+fi
+
 # Check if already installed
-wp core is-installed && echo "✅ WordPress is already installed. Exiting." && exit 0
+if wp core is-installed 2>/dev/null; then
+  echo "✅ WordPress is already installed. Exiting."
+  exit 0
+fi
 
 # Get Git info for YOLO mode
 GIT_NAME=$(git config --global user.name)
 GIT_EMAIL=$(git config --global user.email)
 
+echo ""
 echo "Select install mode:"
 select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each field)" "Exit"; do
   case $MODE in
@@ -40,6 +53,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ;;
     "Details (prompt for each field)")
       echo "🛠 Details mode selected."
+
       read -p "Site Title [DDEV WP Site]: " SITE_TITLE
       SITE_TITLE=${SITE_TITLE:-DDEV WP Site}
 
