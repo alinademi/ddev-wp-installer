@@ -1,0 +1,79 @@
+#!/bin/bash
+
+## Description: Install WordPress with DDEV
+## Usage: wp-install
+## Example: ddev wp-install
+
+# Check if already installed
+wp core is-installed && echo "✅ WordPress is already installed. Exiting." && exit 0
+
+# Get Git info for YOLO mode
+GIT_NAME=$(git config --global user.name)
+GIT_EMAIL=$(git config --global user.email)
+
+echo "Select install mode:"
+select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each field)" "Exit"; do
+  case $MODE in
+    "YOLO (auto-install with Git info)")
+      echo "🔥 YOLO mode selected. Installing with Git-based defaults..."
+
+      # Generate secure random password
+      ADMIN_PASS=$(LC_ALL=C tr -dc 'A-Za-z0-9!@#$%&*' </dev/urandom | head -c 16)
+      ADMIN_PASS=${ADMIN_PASS:-admin123}  # Fallback
+
+      wp core install \
+        --url="https://${DDEV_PRIMARY_URL}" \
+        --title="${GIT_NAME:-DDEV WP Site}" \
+        --admin_user=admin \
+        --admin_password="${ADMIN_PASS}" \
+        --admin_email="${GIT_EMAIL:-admin@example.com}"
+
+      echo ""
+      echo "✅ WordPress installed in YOLO mode!"
+      echo "🔐 Admin credentials:"
+      echo "   Username: admin"
+      echo "   Password: ${ADMIN_PASS}"
+      echo ""
+      echo "📢 Please copy and store this password securely — you won’t see it again!"
+      echo ""
+      break
+      ;;
+    "Details (prompt for each field)")
+      echo "🛠 Details mode selected."
+      read -p "Site Title [DDEV WP Site]: " SITE_TITLE
+      SITE_TITLE=${SITE_TITLE:-DDEV WP Site}
+
+      read -p "Admin Username [admin]: " ADMIN_USER
+      ADMIN_USER=${ADMIN_USER:-admin}
+
+      read -s -p "Admin Password [admin]: " ADMIN_PASS
+      ADMIN_PASS=${ADMIN_PASS:-admin}
+      echo ""
+
+      read -p "Admin Email [admin@example.com]: " ADMIN_EMAIL
+      ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+
+      echo ""
+      echo "Installing WordPress with:"
+      echo "  Title:       $SITE_TITLE"
+      echo "  Admin User:  $ADMIN_USER"
+      echo "  Admin Email: $ADMIN_EMAIL"
+      echo ""
+
+      wp core install \
+        --url="https://${DDEV_PRIMARY_URL}" \
+        --title="${SITE_TITLE}" \
+        --admin_user="${ADMIN_USER}" \
+        --admin_password="${ADMIN_PASS}" \
+        --admin_email="${ADMIN_EMAIL}"
+      break
+      ;;
+    "Exit")
+      echo "👋 Exiting installer."
+      break
+      ;;
+    *)
+      echo "❌ Invalid option, please choose 1, 2, or 3."
+      ;;
+  esac
+done
