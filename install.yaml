@@ -1,6 +1,6 @@
 name: wp-installer
 project_files:
-  - .ddev/commands/web/wp-install
+  - commands/web/wp-install
 post_install_actions:
   - chmod +x .ddev/commands/web/wp-install
   - echo "✅ Installed 'wp-install'. Run 'ddev wp-install' to install WordPress."
