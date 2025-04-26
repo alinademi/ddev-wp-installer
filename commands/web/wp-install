@@ -1,10 +1,9 @@
 #!/bin/bash
 
-## Description: Install WordPress with DDEV
+## Description: Install WordPress with DDEV and optionally import Test Content
 ## Usage: wp-install
 ## Example: ddev wp-install
 
-# Exit on error
 set -e
 
 # Ensure WordPress core exists
@@ -15,7 +14,14 @@ fi
 
 # Check if already installed
 if wp core is-installed 2>/dev/null; then
-  echo "✅ WordPress is already installed. Exiting."
+  echo "✅ WordPress is already installed."
+  read -p "🚀 Do you want to update WordPress core to the latest version? (y/n): " UPDATE_CORE
+  if [[ "$UPDATE_CORE" =~ ^[Yy]$ ]]; then
+    wp core update --quiet
+    echo "✅ WordPress core updated successfully!"
+  else
+    echo "👌 Leaving existing WordPress as-is."
+  fi
   exit 0
 fi
 
@@ -23,20 +29,22 @@ fi
 GIT_NAME=$(git config --global user.name)
 GIT_EMAIL=$(git config --global user.email)
 
+# Get project name for YOLO mode
+PROJECT_NAME=${DDEV_SITENAME}
+
 echo ""
 echo "Select install mode:"
 select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each field)" "Exit"; do
   case $MODE in
     "YOLO (auto-install with Git info)")
-      echo "🔥 YOLO mode selected. Installing with Git-based defaults..."
+      echo "🔥 YOLO mode selected. Installing with project-based defaults..."
 
-      # Generate secure random password
       ADMIN_PASS=$(LC_ALL=C tr -dc 'A-Za-z0-9!@#$%&*' </dev/urandom | head -c 16)
-      ADMIN_PASS=${ADMIN_PASS:-admin123}  # Fallback
+      ADMIN_PASS=${ADMIN_PASS:-admin123}
 
       wp core install \
         --url="https://${DDEV_PRIMARY_URL}" \
-        --title="${GIT_NAME:-DDEV WP Site}" \
+        --title="${PROJECT_NAME}" \
         --admin_user=admin \
         --admin_password="${ADMIN_PASS}" \
         --admin_email="${GIT_EMAIL:-admin@example.com}"
@@ -47,7 +55,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       echo "   Username: admin"
       echo "   Password: ${ADMIN_PASS}"
       echo ""
-      echo "📢 Please copy and store this password securely — you won’t see it again!"
+      echo "📢 Please copy and store this password securely — you won't see it again!"
       echo ""
       break
       ;;
@@ -84,10 +92,23 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ;;
     "Exit")
       echo "👋 Exiting installer."
-      break
+      exit 0
       ;;
     *)
       echo "❌ Invalid option, please choose 1, 2, or 3."
+      exit 1
       ;;
   esac
 done
+
+# Import Test Content
+echo ""
+read -p "📚 Do you also want to import test content? (y/n): " IMPORT_TEST
+if [[ "$IMPORT_TEST" =~ ^[Yy]$ ]]; then
+  echo "🚀 Importing test content..."
+  /mnt/ddev_config/commands/web/wp-test-content
+else
+  echo "👌 Skipping test content import."
+  echo ""
+  echo "🌎 Your site is ready at: ${DDEV_PRIMARY_URL}"
+fi

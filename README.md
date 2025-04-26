@@ -65,6 +65,29 @@ You will be prompted to choose:
 📢 Please copy and store this password securely — you won’t see it again!
 ```
 
+### 📚 Test Content Import
+
+After installation, you can choose to import WordPress Theme Unit Test content. This includes:
+
+- Sample posts and pages
+- Comments and nested comments
+- Categories and tags
+- Images and media
+- Custom menus
+- Theme testing data
+
+The importer will:
+
+- Download official WordPress Theme Unit Test data
+- Install and activate WordPress Importer plugin
+- Import all test content
+
+To import test content separately:
+
+```bash
+ddev wp-test-content
+```
+
 ## 🙋‍♀️ Contributing
 
 PRs and issues welcome! This is a community-friendly DDEV add-on.  

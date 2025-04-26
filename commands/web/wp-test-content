@@ -1,0 +1,49 @@
+#!/bin/bash
+
+## Description: Import official WordPress Theme Unit Test Content
+## Usage: wp-test-content
+## Example: ddev wp-test-content
+
+set -e
+
+# Ensure WordPress is installed
+if ! wp core is-installed 2>/dev/null; then
+  echo "❌ WordPress is not installed. Please run ddev wp-install first."
+  exit 1
+fi
+
+# Download theme test XML if not exists
+XML_FILE="themeunittestdata.wordpress.xml"
+if [ ! -f "$XML_FILE" ]; then
+  echo "📥 Downloading Theme Unit Test data...\n"
+  curl -s -o "$XML_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml
+fi
+
+# Install and activate WordPress Importer
+if ! wp plugin is-installed wordpress-importer; then
+  echo "🛠 Installing WordPress Importer plugin...\n"
+  wp plugin install wordpress-importer --activate
+elif ! wp plugin is-active wordpress-importer; then
+  echo "🔄 Activating WordPress Importer plugin...\n"
+  wp plugin activate wordpress-importer
+fi
+
+# Import data
+echo "📦 Importing Theme Unit Test content...\n"
+wp import "$XML_FILE" --authors=create
+
+# Set recommended WordPress settings
+echo "⚙️ Adjusting WordPress settings..."
+wp option update blogdescription "A very long tagline for testing purposes."
+wp option update posts_per_page 10
+wp option update thread_comments 1
+wp option update thread_comments_depth 3
+wp option update page_comments 1
+wp option update comments_per_page 3
+wp rewrite structure "/%postname%/"
+wp rewrite flush
+
+echo ""
+echo "✅ Theme Unit Test content imported successfully!"
+echo ""
+echo "🌎 Your site is ready at: ${DDEV_PRIMARY_URL}"
