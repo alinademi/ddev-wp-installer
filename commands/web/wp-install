@@ -25,9 +25,8 @@ if wp core is-installed 2>/dev/null; then
   exit 0
 fi
 
-# Get Git info for YOLO mode
-GIT_NAME=$(git config --global user.name)
-GIT_EMAIL=$(git config --global user.email)
+# Get Git info for YOLO mode (don't let an unset key abort the script under `set -e`)
+GIT_EMAIL=$(git config --global user.email 2>/dev/null || true)
 
 # Get project name for YOLO mode
 PROJECT_NAME=${DDEV_SITENAME}
