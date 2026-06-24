@@ -43,7 +43,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ADMIN_PASS=${ADMIN_PASS:-admin123}
 
       wp core install \
-        --url="https://${DDEV_PRIMARY_URL}" \
+        --url="${DDEV_PRIMARY_URL}" \
         --title="${PROJECT_NAME}" \
         --admin_user=admin \
         --admin_password="${ADMIN_PASS}" \
@@ -83,7 +83,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       echo ""
 
       wp core install \
-        --url="https://${DDEV_PRIMARY_URL}" \
+        --url="${DDEV_PRIMARY_URL}" \
         --title="${SITE_TITLE}" \
         --admin_user="${ADMIN_USER}" \
         --admin_password="${ADMIN_PASS}" \
