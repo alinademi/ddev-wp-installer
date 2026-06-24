@@ -12,13 +12,13 @@ This DDEV add-on provides a friendly way to install WordPress in either:
 ## 🚀 Quick Start
 
 ```bash
-ddev get alinademi/ddev-wp-installer
+ddev add-on get alinademi/ddev-wp-installer
 ddev wp-install
 ```
 
 ## 🔧 Features
 
-- Uses your Git `user.name` and `user.email` for defaults (YOLO mode)
+- Uses the DDEV project name as the site title and your Git `user.email` as the admin email (YOLO mode)
 - Generates secure passwords automatically
 - Works on fresh WordPress projects in DDEV
 
@@ -27,7 +27,7 @@ ddev wp-install
 ### Option 1: Via GitHub
 
 ```bash
-ddev get alinademi/ddev-wp-installer
+ddev add-on get alinademi/ddev-wp-installer
 ```
 
 ### Option 2: Local Development
@@ -37,7 +37,7 @@ Clone the repo and link it into your project:
 ```bash
 git clone https://github.com/alinademi/ddev-wp-installer.git
 cd my-ddev-project
-ddev get ../ddev-wp-installer
+ddev add-on get ../ddev-wp-installer
 ```
 
 ## 🧪 Usage
