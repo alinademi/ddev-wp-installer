@@ -6,6 +6,9 @@
 
 set -e
 
+# Run from the WordPress docroot (see wp-install for rationale).
+cd "${DDEV_APPROOT:-$(pwd)}/${DDEV_DOCROOT}" 2>/dev/null || true
+
 # Ensure WordPress is installed
 if ! wp core is-installed 2>/dev/null; then
   echo "❌ WordPress is not installed. Please run ddev wp-install first."

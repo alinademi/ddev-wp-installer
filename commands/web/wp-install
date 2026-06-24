@@ -6,6 +6,11 @@
 
 set -e
 
+# Run from the WordPress docroot. DDEV web commands start in the project root,
+# but WordPress may live in a subdirectory (e.g. web/, public/) given by
+# DDEV_DOCROOT. Fall back to the current directory if the variables are unset.
+cd "${DDEV_APPROOT:-$(pwd)}/${DDEV_DOCROOT}" 2>/dev/null || true
+
 # Ensure WordPress core exists
 if ! [ -f wp-load.php ]; then
   echo "📦 Downloading WordPress core..."
