@@ -18,7 +18,7 @@ fi
 # Download theme test XML if not exists
 XML_FILE="themeunittestdata.wordpress.xml"
 if [ ! -f "$XML_FILE" ]; then
-  echo "📥 Downloading Theme Unit Test data...\n"
+  echo "📥 Downloading Theme Unit Test data..."
   TMP_FILE="$(mktemp)"
   if ! curl -fSL --retry 3 -o "$TMP_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml; then
     echo "❌ Failed to download Theme Unit Test data. Check your connection and try again."
@@ -35,15 +35,15 @@ fi
 
 # Install and activate WordPress Importer
 if ! wp plugin is-installed wordpress-importer; then
-  echo "🛠 Installing WordPress Importer plugin...\n"
+  echo "🛠 Installing WordPress Importer plugin..."
   wp plugin install wordpress-importer --activate
 elif ! wp plugin is-active wordpress-importer; then
-  echo "🔄 Activating WordPress Importer plugin...\n"
+  echo "🔄 Activating WordPress Importer plugin..."
   wp plugin activate wordpress-importer
 fi
 
 # Import data
-echo "📦 Importing Theme Unit Test content...\n"
+echo "📦 Importing Theme Unit Test content..."
 wp import "$XML_FILE" --authors=create
 
 # Set recommended WordPress settings
