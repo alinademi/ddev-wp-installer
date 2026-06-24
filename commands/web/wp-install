@@ -17,6 +17,15 @@ if ! [ -f wp-load.php ]; then
   wp core download
 fi
 
+# Ensure wp-config.php exists. DDEV's wordpress project type normally creates it
+# on `ddev start`, but on a generic/php project type (or if it was removed)
+# wp-cli aborts with "'wp-config.php' not found". Create it with DDEV's standard
+# database credentials as a fallback.
+if [ ! -f wp-config.php ]; then
+  echo "⚙️  Creating wp-config.php with DDEV database credentials..."
+  wp config create --dbname=db --dbuser=db --dbpass=db --dbhost=db
+fi
+
 # Check if already installed
 if wp core is-installed 2>/dev/null; then
   echo "✅ WordPress is already installed."
