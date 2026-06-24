@@ -19,7 +19,18 @@ fi
 XML_FILE="themeunittestdata.wordpress.xml"
 if [ ! -f "$XML_FILE" ]; then
   echo "📥 Downloading Theme Unit Test data...\n"
-  curl -s -o "$XML_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml
+  TMP_FILE="$(mktemp)"
+  if ! curl -fSL --retry 3 -o "$TMP_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml; then
+    echo "❌ Failed to download Theme Unit Test data. Check your connection and try again."
+    rm -f "$TMP_FILE"
+    exit 1
+  fi
+  if ! grep -q "<rss" "$TMP_FILE"; then
+    echo "❌ Downloaded file is not a valid WordPress export. Aborting."
+    rm -f "$TMP_FILE"
+    exit 1
+  fi
+  mv "$TMP_FILE" "$XML_FILE"
 fi
 
 # Install and activate WordPress Importer
