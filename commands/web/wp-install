@@ -109,7 +109,6 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ;;
     *)
       echo "❌ Invalid option, please choose 1, 2, or 3."
-      exit 1
       ;;
   esac
 done
