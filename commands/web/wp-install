@@ -6,10 +6,24 @@
 
 set -e
 
+# Run from the WordPress docroot. DDEV web commands start in the project root,
+# but WordPress may live in a subdirectory (e.g. web/, public/) given by
+# DDEV_DOCROOT. Fall back to the current directory if the variables are unset.
+cd "${DDEV_APPROOT:-$(pwd)}/${DDEV_DOCROOT}" 2>/dev/null || true
+
 # Ensure WordPress core exists
 if ! [ -f wp-load.php ]; then
   echo "📦 Downloading WordPress core..."
   wp core download
+fi
+
+# Ensure wp-config.php exists. DDEV's wordpress project type normally creates it
+# on `ddev start`, but on a generic/php project type (or if it was removed)
+# wp-cli aborts with "'wp-config.php' not found". Create it with DDEV's standard
+# database credentials as a fallback.
+if [ ! -f wp-config.php ]; then
+  echo "⚙️  Creating wp-config.php with DDEV database credentials..."
+  wp config create --dbname=db --dbuser=db --dbpass=db --dbhost=db
 fi
 
 # Check if already installed
@@ -25,9 +39,8 @@ if wp core is-installed 2>/dev/null; then
   exit 0
 fi
 
-# Get Git info for YOLO mode
-GIT_NAME=$(git config --global user.name)
-GIT_EMAIL=$(git config --global user.email)
+# Get Git info for YOLO mode (don't let an unset key abort the script under `set -e`)
+GIT_EMAIL=$(git config --global user.email 2>/dev/null || true)
 
 # Get project name for YOLO mode
 PROJECT_NAME=${DDEV_SITENAME}
@@ -43,7 +56,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ADMIN_PASS=${ADMIN_PASS:-admin123}
 
       wp core install \
-        --url="https://${DDEV_PRIMARY_URL}" \
+        --url="${DDEV_PRIMARY_URL}" \
         --title="${PROJECT_NAME}" \
         --admin_user=admin \
         --admin_password="${ADMIN_PASS}" \
@@ -83,7 +96,7 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       echo ""
 
       wp core install \
-        --url="https://${DDEV_PRIMARY_URL}" \
+        --url="${DDEV_PRIMARY_URL}" \
         --title="${SITE_TITLE}" \
         --admin_user="${ADMIN_USER}" \
         --admin_password="${ADMIN_PASS}" \
@@ -96,7 +109,6 @@ select MODE in "YOLO (auto-install with Git info)" "Details (prompt for each fie
       ;;
     *)
       echo "❌ Invalid option, please choose 1, 2, or 3."
-      exit 1
       ;;
   esac
 done

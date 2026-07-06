@@ -6,6 +6,9 @@
 
 set -e
 
+# Run from the WordPress docroot (see wp-install for rationale).
+cd "${DDEV_APPROOT:-$(pwd)}/${DDEV_DOCROOT}" 2>/dev/null || true
+
 # Ensure WordPress is installed
 if ! wp core is-installed 2>/dev/null; then
   echo "❌ WordPress is not installed. Please run ddev wp-install first."
@@ -15,21 +18,32 @@ fi
 # Download theme test XML if not exists
 XML_FILE="themeunittestdata.wordpress.xml"
 if [ ! -f "$XML_FILE" ]; then
-  echo "📥 Downloading Theme Unit Test data...\n"
-  curl -s -o "$XML_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml
+  echo "📥 Downloading Theme Unit Test data..."
+  TMP_FILE="$(mktemp)"
+  if ! curl -fSL --retry 3 -o "$TMP_FILE" https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml; then
+    echo "❌ Failed to download Theme Unit Test data. Check your connection and try again."
+    rm -f "$TMP_FILE"
+    exit 1
+  fi
+  if ! grep -q "<rss" "$TMP_FILE"; then
+    echo "❌ Downloaded file is not a valid WordPress export. Aborting."
+    rm -f "$TMP_FILE"
+    exit 1
+  fi
+  mv "$TMP_FILE" "$XML_FILE"
 fi
 
 # Install and activate WordPress Importer
 if ! wp plugin is-installed wordpress-importer; then
-  echo "🛠 Installing WordPress Importer plugin...\n"
+  echo "🛠 Installing WordPress Importer plugin..."
   wp plugin install wordpress-importer --activate
 elif ! wp plugin is-active wordpress-importer; then
-  echo "🔄 Activating WordPress Importer plugin...\n"
+  echo "🔄 Activating WordPress Importer plugin..."
   wp plugin activate wordpress-importer
 fi
 
 # Import data
-echo "📦 Importing Theme Unit Test content...\n"
+echo "📦 Importing Theme Unit Test content..."
 wp import "$XML_FILE" --authors=create
 
 # Set recommended WordPress settings
