@@ -56,10 +56,12 @@ You will be prompted to choose:
 
 ### YOLO Mode Output Example
 
+*Note: The username will be your Git `user.name` (falls back to "admin" if not configured)*
+
 ```txt
 ✅ WordPress installed in YOLO mode!
 🔐 Admin credentials:
-   Username: admin
+   Username: johnsmith
    Password: Rnd0mP@ssW0rd!
 
 📢 Please copy and store this password securely — you won’t see it again!
